@@ -4,8 +4,8 @@
 
   /* Registering a service worker */
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js').then(registration => {
-      console.log('Service Worker Registered', registration):
+    navigator.serviceWorker.register('./service-worker.js').then(registration => {
+      console.log('Service Worker Registered', registration);
     })
   }
 
@@ -143,6 +143,11 @@
       app.container.appendChild(card);
       app.visibleCards[ data.key ] = card;
     }
+
+    var dateElem = card.querySelector('.date');
+    if (dateElem.getAttribute('data-dt') >= data.currently.time) {
+      return;
+    }
     card.querySelector('.description').textContent = data.currently.summary;
     card.querySelector('.date').textContent =
       new Date(data.currently.time * 1000);
@@ -192,7 +197,21 @@
   // Gets a forecast for a specific city and update the card with the data
   app.getForecast = function (key, label) {
     var url = weatherAPIUrlBase + key + '.json';
+    if ('caches' in window) {
+      caches.match(url).then(response => {
+        if (response) {
+          response.json().then(json => {
+            if (app.hasRequestPending) {
+              json.key = key;
+              json.label = label;
+              app.updateForecastCard(json);
+            }
+          })
+        }
+      })
+    }
     // Make the XHR to get the data, then update the card
+    app.hasRequestPending = true;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
       if (request.readyState === XMLHttpRequest.DONE) {
