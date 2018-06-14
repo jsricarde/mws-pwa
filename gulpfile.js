@@ -24,7 +24,7 @@ gulp.task('generate-sw', function () {
     staticFileGlobs: [
       './index.html',
       // './mws-pwa/images/*.{png,svg,gif,jpg}',
-      './images/*.{png,svg,gif,jpg}',
+      './mws-pwa/images/*.{png,svg,gif,jpg}',
       './scripts/*.js',
       './styles/*.css'
     ],
